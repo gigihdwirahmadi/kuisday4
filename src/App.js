@@ -5,9 +5,9 @@ import Form from './Form.jsx';
 import axios from 'axios';
 function App() {
 
-
+  const [Page,SetPage]= useState(1)
   const postData = async (e) => {
-   
+
     const body = {};
 
     try {
@@ -25,6 +25,10 @@ function App() {
     }
   }
 
+  const PrevPage=()=>{
+    if (Page >1){
+    SetPage(Page-1) }
+  }
   const patchData = async (e) => {
 
     const body = {};
@@ -48,6 +52,10 @@ function App() {
     } catch (err) {
       console.log(err)
     }
+  }
+  const NextPage=()=>{
+    if(Page<Data.length*Page)
+    SetPage(Page+1);
   }
   const putData = async (e) => {
 
@@ -73,11 +81,12 @@ function App() {
       console.log(err)
     }
   }
+
   const [Data, setData] = useState([]);
   const getData = async () => {
     try {
       const response = await axios.get(
-        'http://localhost:3004/post'
+       ` http://localhost:3004/post?_page=${Page}&_limit=4`
       );
 
       console.log(response)
@@ -89,43 +98,87 @@ function App() {
       console.log(error);
     }
   };
-const deleteData = async(e)=>{
-  try {const response = await axios.delete(
-    'http://localhost:3004/post'+ e.target.value[0]
-  )
-}catch (error) {
-  console.log(error);
-}
-}
+  const deleteData = async (e) => {
+  
+   
+    try {
+      const response = await axios.delete("http://localhost:3004/post/" + e.target[0].value);
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
 
-  useEffect(() => { getData(); }, []);
+  };
+  useEffect(() => { getData(); }, [Page]);
   return (
     <div className="App">
 
-      
+
       <div className='wall1'>
-      <h1>Request Data With AXIOS</h1>
+        <h1>Request Data With AXIOS</h1>
         {Data?.map((item) => (
           <div key={item.id} className="item">
-            name :{item.name} <br></br>
-            age: {item.age} <br></br>
-            email : {item.email} <br></br>
+            <table>
+              <tr>
+                <td>name</td>
+                <td>:</td>
+                <td>{item.name}</td>
+              </tr>
+              <tr>
+                <td>id</td>
+                <td>:</td>
+                <td>{item.id}</td>
+              </tr>
+              <tr>
+                <td>email</td>
+                <td>:</td>
+                <td>{item.email}</td>
+              </tr>
+              <tr>
+                <td>age</td>
+                <td>:</td>
+                <td>{item.age}</td>
+              </tr>
+            </table>
 
           </div>
         ))}
       </div>
-      <div>
-      <h1>PUT REQUEST DATA</h1>
-      <Form type='POST' action={(e) => { postData(e) }} />
-      <h1>PATCH REQUEST DATA</h1>
-      <Form type='UPDATE' action={(e) => { patchData(e) }} />
-      <Form type='UPDATE' action={(e) => { putData(e) }} />
-      <Form type='DELETE' action={(e) => { deleteData(e)}}/>
+     <div class="button px-4">  
+     <button class="btn btn-light mx-2"  onClick={PrevPage}>Pref</button>
+     <button class="btn btn-light mx-2" onClick={NextPage}>Next</button>
       </div>
-    </div>
-
-  )
+      <div class="wallform">
+    
+        <span class="child">
+          <h3>POST REQUEST DATA</h3>
+          <Form type='POST' name='POST'action={(e) => { postData(e) }} />
+        </span>
+        <span class="child">
+          <h3>PATCH REQUEST DATA</h3>
+          <Form type='UPDATE' name='PATCH' action={(e) => { patchData(e) }} />
+        </span>
+        <span class="child">
+        <h3>PUT REQUEST DATA</h3>
+          <Form type='UPDATE' name='PUT' action={(e) => { putData(e) }} />
+        </span>
+        <span class="child">
+        <h3>DELETE</h3>
+        <div class="form">
+          <form onSubmit={(e) => {
+            deleteData(e);
+          }}>
+            <input className="input" type="number" placeholder="id" />
+            <button className="btn btn-dark" type="submit">
+              delete
+            </button>
+          </form>
+          </div>
+        </span>
+      </div>
+</div>
+      )
 
 }
 
-export default App
+      export default App
